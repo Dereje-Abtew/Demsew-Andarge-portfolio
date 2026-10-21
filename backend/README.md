@@ -12,19 +12,22 @@ Controller-based ASP.NET Core API targeting .NET 10 / C# 14. PostgreSQL is the d
 From the repository root:
 
 ```powershell
-Copy-Item backend\.env.example backend\.env
-# Set the environment variables below in this PowerShell session. Edit the connection string for your PostgreSQL credentials.
+# ASP.NET Core does not automatically load .env files; set values in this shell or your hosting environment.
 $env:ConnectionStrings__Default = "Host=localhost;Port=5432;Database=demsew_portfolio;Username=postgres;Password=your-local-password"
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+$env:ASPNETCORE_URLS = "http://localhost:6231"
+$env:Database__Provider = "PostgreSQL"
 $env:Jwt__Secret = "replace-with-a-random-secret-at-least-32-bytes-long"
 $env:Admin__Email = "admin@example.com"
 $env:Admin__Password = "Use-A-Unique-Password-2026!"
 $env:RequireAdminCredentials = "true"
+$env:Frontend__Origin = "http://localhost:6230"
 dotnet run --project backend\DemsewPortfolio.Api
 ```
 
-Create the `demsew_portfolio` database in PostgreSQL before running the API. ASP.NET Core reads `__` environment variable names as nested configuration; it does not automatically load `.env` files, so set environment values in your shell or IDE. The API listens at `http://localhost:6230`, applies the included initial migration, then seeds the admin account, categories, demonstration projects, services, and testimonial. The sample content is intentionally marked as replaceable and must be reviewed before production publishing.
+Create the `demsew_portfolio` database in PostgreSQL before running the API. ASP.NET Core reads `__` environment variable names as nested configuration; it does not automatically load `.env` files, so set environment values in your shell or IDE. The API listens at `http://localhost:6231`, applies the included initial migration, then seeds the admin account, categories, demonstration projects, services, and testimonial. The sample content is intentionally marked as replaceable and must be reviewed before production publishing.
 
-OpenAPI is available at `/openapi/v1.json`, with Scalar documentation at `/scalar/v1` in Development.
+OpenAPI is available at `http://localhost:6231/openapi/v1.json`, with Scalar documentation at `http://localhost:6231/scalar/v1` in Development.
 
 ## Database migrations
 

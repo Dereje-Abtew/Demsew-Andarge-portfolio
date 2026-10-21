@@ -13,7 +13,7 @@ using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls(builder.Configuration["ASPNETCORE_URLS"] ?? "http://localhost:6230");
+builder.WebHost.UseUrls(builder.Configuration["ASPNETCORE_URLS"] ?? "http://localhost:6231");
 builder.Host.UseSerilog((_, configuration) => configuration
     .Enrich.FromLogContext()
     .WriteTo.Console());
@@ -74,7 +74,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
-var frontendOrigin = builder.Configuration["Frontend:Origin"] ?? "http://localhost:3000";
+var frontendOrigin = builder.Configuration["Frontend:Origin"] ?? "http://localhost:6230";
 builder.Services.AddCors(options => options.AddPolicy("frontend", policy =>
     policy.WithOrigins(frontendOrigin).AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddRateLimiter(options =>

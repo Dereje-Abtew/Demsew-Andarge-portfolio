@@ -24,7 +24,7 @@ public sealed class AuthController(
     public async Task<ActionResult<TokenResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
         var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (!validation.IsValid) return ValidationProblem(validation.ToDictionary());
+        if (!validation.IsValid) return BadRequest(new ValidationProblemDetails(validation.ToDictionary()));
 
         var user = await users.FindByEmailAsync(request.Email);
         if (user is null)

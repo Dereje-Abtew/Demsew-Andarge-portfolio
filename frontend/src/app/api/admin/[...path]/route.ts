@@ -1,26 +1,16 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
-const refreshSchema = {
-  parse(value: unknown): { accessToken: string; refreshToken: string; accessExpiresAtUtc: string } | null {
-    if (typeof value !== "object" || value === null) return null;
-    const data = value as Record<string, unknown>;
-    if (
-      typeof data.accessToken !== "string" ||
-      typeof data.refreshToken !== "string" ||
-      typeof data.accessExpiresAtUtc !== "string"
-    ) {
-      return null;
-    }
-    return {
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-      accessExpiresAtUtc: data.accessExpiresAtUtc,
-    };
-  },
-};
+const refreshSchema = z.object({
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  accessExpiresAtUtc: z.string().datetime({ offset: true }),
+});
+type RefreshTokens = z.infer<typeof refreshSchema>;
+const refreshInFlight = new Map<string, Promise<RefreshTokens | null>>();
 
 export async function GET(request: NextRequest, context: RouteContext) {
   return proxy(request, context);
@@ -107,6 +97,14 @@ async function proxy(request: NextRequest, context: RouteContext) {
 }
 
 async function refresh(refreshToken: string) {
+  const existing = refreshInFlight.get(refreshToken);
+  if (existing) return existing;
+  const operation = requestRefresh(refreshToken).finally(() => refreshInFlight.delete(refreshToken));
+  refreshInFlight.set(refreshToken, operation);
+  return operation;
+}
+
+async function requestRefresh(refreshToken: string) {
   const response = await fetch(`${apiUrl()}/api/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -114,7 +112,8 @@ async function refresh(refreshToken: string) {
     cache: "no-store",
   });
   if (!response.ok) return null;
-  return refreshSchema.parse(await response.json().catch(() => null));
+  const parsed = refreshSchema.safeParse(await response.json().catch(() => null));
+  return parsed.success ? parsed.data : null;
 }
 
 function fetchApi(
@@ -127,7 +126,7 @@ function fetchApi(
 }
 
 function apiUrl() {
-  return (process.env.PORTFOLIO_API_URL ?? "http://localhost:6230").replace(/\/+$/, "");
+  return (process.env.PORTFOLIO_API_URL ?? "http://localhost:6231").replace(/\/+$/, "");
 }
 
 function clearAdminCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {

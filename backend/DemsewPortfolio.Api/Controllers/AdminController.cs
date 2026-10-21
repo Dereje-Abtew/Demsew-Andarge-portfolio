@@ -104,7 +104,13 @@ public sealed class AdminController(
             return Conflict(new ProblemDetails { Title = "Project slug is already in use.", Status = 409 });
         if (!await db.Categories.AnyAsync(item => item.Id == input.CategoryId, cancellationToken))
             return BadRequest(new ProblemDetails { Title = "Category does not exist.", Status = 400 });
-        var project = new Project { Title = input.Title.Trim(), Slug = input.Slug, Description = input.Description.Trim() };
+        var project = new Project
+        {
+            Title = input.Title.Trim(),
+            Slug = input.Slug,
+            Description = input.Description.Trim(),
+            VideoUrl = input.VideoUrl
+        };
         Apply(project, input);
         db.Projects.Add(project);
         await db.SaveChangesAsync(cancellationToken);
@@ -163,7 +169,7 @@ public sealed class AdminController(
     {
         var invalid = await Validate(input, testimonialValidator, cancellationToken);
         if (invalid is not null) return invalid;
-        var item = new Testimonial();
+        var item = new Testimonial { ClientName = input.ClientName, Quote = input.Quote };
         Apply(item, input);
         db.Testimonials.Add(item);
         await db.SaveChangesAsync(cancellationToken);
@@ -204,7 +210,7 @@ public sealed class AdminController(
     {
         var invalid = await Validate(input, serviceValidator, cancellationToken);
         if (invalid is not null) return invalid;
-        var item = new Entities.Service();
+        var item = new Entities.Service { Title = input.Title, Description = input.Description };
         Apply(item, input);
         db.Services.Add(item);
         await db.SaveChangesAsync(cancellationToken);

@@ -4,7 +4,7 @@
     "DemsewPortfolio.Api": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "http://localhost:6230",
+      "applicationUrl": "http://localhost:6231",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

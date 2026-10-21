@@ -44,7 +44,7 @@ public sealed class LocalFileStorage(IWebHostEnvironment environment) : IFileSto
     private static bool HasValidSignature(string extension, ReadOnlySpan<byte> bytes) => extension switch
     {
         ".jpg" or ".jpeg" => bytes.Length >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF,
-        ".png" => bytes.Length >= 8 && bytes[..8].SequenceEqual([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
+        ".png" => bytes.Length >= 8 && bytes[..8].SequenceEqual(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }),
         ".webp" => bytes.Length >= 12 && bytes[..4].SequenceEqual("RIFF"u8) && bytes[8..12].SequenceEqual("WEBP"u8),
         ".pdf" => bytes.Length >= 5 && bytes[..5].SequenceEqual("%PDF-"u8),
         _ => false

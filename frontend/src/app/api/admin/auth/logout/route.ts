@@ -25,5 +25,5 @@ export async function POST() {
 }
 
 function apiUrl() {
-  return (process.env.PORTFOLIO_API_URL ?? "http://localhost:6230").replace(/\/+$/, "");
+  return (process.env.PORTFOLIO_API_URL ?? "http://localhost:6231").replace(/\/+$/, "");
 }

@@ -3,6 +3,7 @@ using DemsewPortfolio.Api.Data;
 using DemsewPortfolio.Api.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -79,7 +80,7 @@ public sealed class PublicController(
     public async Task<IActionResult> Contact(ContactInput input, CancellationToken cancellationToken)
     {
         var validation = await contactValidator.ValidateAsync(input, cancellationToken);
-        if (!validation.IsValid) return ValidationProblem(validation.ToDictionary());
+        if (!validation.IsValid) return BadRequest(new ValidationProblemDetails(validation.ToDictionary()));
 
         var message = new ContactMessage
         {
