@@ -13,7 +13,10 @@ using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls(builder.Configuration["ASPNETCORE_URLS"] ?? "http://localhost:6231");
+var port = builder.Configuration["PORT"];
+var urls = builder.Configuration["ASPNETCORE_URLS"]
+    ?? (port is null ? "http://localhost:6231" : $"http://0.0.0.0:{port}");
+builder.WebHost.UseUrls(urls);
 builder.Host.UseSerilog((_, configuration) => configuration
     .Enrich.FromLogContext()
     .WriteTo.Console());
